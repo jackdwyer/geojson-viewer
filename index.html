@@ -12,7 +12,6 @@
         margin-right: 1%;
         display: inline-block;
         vertical-align: middle;
-        width: 48%;
       }
 
       #geojson-map {
@@ -109,13 +108,14 @@
 
     function log_data(msg) {
       if (data_msg.length == 10) {
-        data_msg.shift()
-        data_msg.push(msg)
+        data_msg.pop();
+        data_msg.unshift(msg);
       }
       else {
-        data_msg.push(msg)
+        data_msg.unshift(msg);
       }
-      document.getElementById('data_log').textContent = data_msg.reverse().join('\n');
+      // document.getElementById('data_log').textContent = data_msg.reverse().join('\n');
+      document.getElementById('data_log').textContent = data_msg.join('\n');
     }
 
     function log_data_events() {
