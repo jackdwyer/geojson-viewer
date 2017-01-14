@@ -3,23 +3,47 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
     <style>
+      .wrapper {
+        display: inline-block;
+        white-space: nowrap;
+      }
+      .block {
+        margin-left: 1%;
+        margin-right: 1%;
+        display: inline-block;
+        vertical-align: middle;
+        width: 48%;
+      }
+
       #geojson-map {
         height: 75%;
       }
-      #config {
-        margin-top: 1%;
+      #geo {
         height: 24%;
       }
+      #data {
+        height: 24%;
+      }
+ 
     </style>
       </head>
   <body>
     <div id="geojson-map"></div>
-    <div id="config">
-      <label>websocket endpoint: <input id='websocket_path' value="ws://localhost:8080/" type='text'></input></label>
-      <button onclick="go_websocket()">CONNECT</button>
-      <pre id='status'>Status: not connected</pre>
-      <pre id='events'></pre>
-      <pre id='log'></pre>
+    <div class="wrapper">
+      <div class="block" id="geo">
+        <label>geo websocket endpoint: <input id='websocket_geo_path' value="ws://localhost:8080/" type='text'></input></label>
+        <button onclick="go_geo_websocket()">CONNECT</button>
+        <pre id='geo_status'>Status: not connected</pre>
+        <pre id='geo_events'></pre>
+        <pre id='geo_log'></pre>
+      </div>
+      <div class="block" id="data">
+        <label>data websocket endpoint: <input id='websocket_data_path' value="ws://localhost:8081/" type='text'></input></label>
+        <button onclick="go_data_websocket()">CONNECT</button>
+        <pre id='data_status'>Status: not connected</pre>
+        <pre id='data_events'></pre>
+        <pre id='data_log'></pre>
+      </div>
     </div>
   </body>
   <script>
@@ -43,41 +67,87 @@
       geojsonLayer.addData({"type": "Feature", "geometry": {"type": "Point", "coordinates": [lng, lat]}});
     }
 
-    var events = 0;
+    var geo_events = 0;
 
-    function log(msg) {
-      document.getElementById('log').textContent = "Log: " + msg;
+    function log_geo(msg) {
+      document.getElementById('geo_log').textContent = "Log: " + msg;
     }
 
-    function log_events() {
-      document.getElementById('events').textContent = "Events: " + events;
+    function log_geo_events() {
+      document.getElementById('geo_events').textContent = "Events: " + geo_events;
     }
 
-    function log_status(msg) {
-      document.getElementById('status').textContent = 'Status: ' + msg;
+    function log_geo_status(msg) {
+      document.getElementById('geo_status').textContent = 'Status: ' + msg;
     }
 
-    function go_websocket() {
-      var ws_path = document.getElementById('websocket_path').value;
+    function go_geo_websocket() {
+      var ws_path = document.getElementById('websocket_geo_path').value;
       console.log(ws_path);
       var ws = new WebSocket(ws_path);
 
       ws.onopen = function() {
-        log_status('CONNECTED');
+        log_geo_status('CONNECTED');
       };
 
       ws.onclose = function() {
-        log_status('DISCONNECTED');
+        log_geo_status('DISCONNECTED');
       };
 
       ws.onmessage = function(event) {
-        log('MESSAGE: ' + event.data);
-        events += 1;
-        log_events();
+        log_geo(event.data);
+        geo_events += 1;
+        log_geo_events();
         var res = event.data.split(",");
         dump_geojson(res[0], res[1]);
       };
     }
+
+    var data_events = 0;
+
+    var data_msg = new Array();
+
+    function log_data(msg) {
+      if (data_msg.length == 10) {
+        data_msg.shift()
+        data_msg.push(msg)
+      }
+      else {
+        data_msg.push(msg)
+      }
+      document.getElementById('data_log').textContent = data_msg.reverse().join('\n');
+    }
+
+    function log_data_events() {
+      document.getElementById('data_events').textContent = "Events: " + data_events;
+    }
+
+    function log_data_status(msg) {
+      document.getElementById('data_status').textContent = 'Status: ' + msg;
+    }
+
+    function go_data_websocket() {
+      var ws_path = document.getElementById('websocket_data_path').value;
+      console.log(ws_path);
+      var ws = new WebSocket(ws_path);
+
+      ws.onopen = function() {
+        log_data_status('CONNECTED');
+      };
+
+      ws.onclose = function() {
+        log_data_status('DISCONNECTED');
+      };
+
+      ws.onmessage = function(event) {
+        log_data(event.data);
+        data_events += 1;
+        log_data_events();
+        var res = event.data.split(",");
+      };
+    }
+
+
 
   </script>
 </html>
