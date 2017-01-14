@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <style>
+      #geojson-map {
+        height: 75%;
+      }
+      #config {
+        margin-top: 1%;
+        height: 24%;
+      }
+    </style>
+      </head>
+  <body>
+    <div id="geojson-map"></div>
+    <div id="config">
+      <label>websocket endpoint: <input id='websocket_path' value="ws://localhost:8080/" type='text'></input></label>
+      <button onclick="go_websocket()">CONNECT</button>
+      <pre id='events'></pre>
+      <pre id='log'></pre>
+    </div>
+  </body>
+  <script>
+    var mapbox_project_id = 'mapbox.streets';
+    var mapbox_public_key = 'pk.eyJ1IjoiamFja2R3eWVyIiwiYSI6ImNpeHdndHA4cDAwMjYzMnBpZWwyczFreHUifQ.IQehZLHQwWqtfTo9dTICbw';
+
+    // centered around nyc
+    var geomap = L.map('geojson-map').setView([40.73, -73.93], 2);
+
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    maxZoom: 18,
+    id: mapbox_project_id,
+    accessToken: mapbox_public_key
+}).addTo(geomap);
+
+    geojsonLayer = L.geoJSON().addTo(geomap);
+
+    function dump_geojson(lat, lng) {
+      console.log(lat, lng);
+      geojsonLayer.addData({"type": "Feature", "geometry": {"type": "Point", "coordinates": [lng, lat]}});
+    }
+
+    var events = 0;
+
+    function log(msg) {
+      document.getElementById('log').textContent = "Log: " + msg;
+    }
+
+    function log_events() {
+      document.getElementById('events').textContent = "Events: " + events;
+    }
+
+    function go_websocket() {
+      var ws_path = document.getElementById('websocket_path').value;
+      console.log(ws_path);
+      var ws = new WebSocket(ws_path);
+
+      ws.onmessage = function(event) {
+        log('MESSAGE: ' + event.data);
+        events += 1;
+        log_events();
+        var res = event.data.split(",");
+        dump_geojson(res[0], res[1]);
+      };
+    }
+
+  </script>
+</html>
