@@ -4,7 +4,8 @@ This does not support `geojson` spec as yet.  Currently takes in latitude,longit
 
 [http://geojson.dwyer.club](http://geojson.dwyer.club)
 
-## Geo Data generator
+## Development
+### Geo data generator
 ```bash
 $ websocketd --port=8080 ./geojson_generator.sh 
 ```
