@@ -17,6 +17,7 @@
     <div id="config">
       <label>websocket endpoint: <input id='websocket_path' value="ws://localhost:8080/" type='text'></input></label>
       <button onclick="go_websocket()">CONNECT</button>
+      <pre id='status'>Status: not connected</pre>
       <pre id='events'></pre>
       <pre id='log'></pre>
     </div>
@@ -52,10 +53,22 @@
       document.getElementById('events').textContent = "Events: " + events;
     }
 
+    function log_status(msg) {
+      document.getElementById('status').textContent = 'Status: ' + msg;
+    }
+
     function go_websocket() {
       var ws_path = document.getElementById('websocket_path').value;
       console.log(ws_path);
       var ws = new WebSocket(ws_path);
+
+      ws.onopen = function() {
+        log_status('CONNECTED');
+      };
+
+      ws.onclose = function() {
+        log_status('DISCONNECTED');
+      };
 
       ws.onmessage = function(event) {
         log('MESSAGE: ' + event.data);
