@@ -1,7 +1,13 @@
 <html>
   <head>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+   crossorigin=""/>
+
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+     integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+     crossorigin=""></script>
+
     <style>
       .wrapper {
         display: inline-block;
@@ -50,7 +56,9 @@
     var mapbox_public_key = 'pk.eyJ1IjoiamFja2R3eWVyIiwiYSI6ImNpeHdndHA4cDAwMjYzMnBpZWwyczFreHUifQ.IQehZLHQwWqtfTo9dTICbw';
 
     // centered around nyc
-    var geomap = L.map('geojson-map').setView([40.73, -73.93], 2);
+    // var geomap = L.map('geojson-map').setView([40.73, -73.93], 2); 
+  // center on melbourne, au
+   var geomap = L.map('geojson-map').setView([-37.814, 144.96332], 10);
 
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -59,11 +67,17 @@
     accessToken: mapbox_public_key
 }).addTo(geomap);
 
-    geojsonLayer = L.geoJSON().addTo(geomap);
+    // geojsonLayer = L.geoJSON().addTo(geomap);
 
     function dump_geojson(lat, lng) {
+      console.log("dump geojson");
       console.log(lat, lng);
-      geojsonLayer.addData({"type": "Feature", "geometry": {"type": "Point", "coordinates": [lng, lat]}});
+
+
+      L.geoJSON({"type": "Feature", "geometry": {"type": "Point", "coordinates": [lng, lat]}}).addTo(geomap);
+
+
+      // geojsonLayer.addData({"type": "Feature", "geometry": {"type": "Point", "coordinates": [lng, lat]}});
     }
 
     var geo_events = 0;
@@ -146,8 +160,5 @@
         var res = event.data.split(",");
       };
     }
-
-
-
   </script>
 </html>
